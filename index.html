@@ -175,6 +175,16 @@ const Assets = {
         img.src = src;
         this.images[name] = img;
     },
+    loadAudio: function(name, src) {
+        const sound = new Audio(src);
+        this.audio[name] = sound;
+    },
+    playAudio: function(name) {
+        if (this.audio[name]) {
+            this.audio[name].currentTime = 0; // Начинаем сначала
+            this.audio[name].play().catch(e => console.log("Audio play blocked by browser", e)); // Защита от блокировки автоплея браузером
+        }
+    },
     draw: function(name, x, y, w, h, fallbackParams) {
         const img = this.images[name];
         // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Строгая проверка на naturalWidth !== 0
@@ -217,6 +227,8 @@ Assets.loadImg('plat_ghost', 'assets/platform_ghost.png');
 Assets.loadImg('spring', 'assets/spring.png');
 Assets.loadImg('jetpack', 'assets/jetpack.png');
 Assets.loadImg('enemy', 'assets/enemy.png');
+// ЗАГРУЖАЕМ ЗВУК
+Assets.loadAudio('lose', 'assets/lose.mp3');
 
 class ParticleSystem {
     constructor() { this.particles = []; }
@@ -665,6 +677,10 @@ const Game = {
     gameOver: function() {
         if(this.state === 'GAMEOVER') return;
         this.state = 'GAMEOVER';
+        
+        // ВОСПРОИЗВОДИТСЯ ЗВУК ПОРАЖЕНИЯ ЗДЕСЬ
+        Assets.playAudio('lose');
+        
         this.player.isDead = true;
         this.player.vy = -800; 
         this.screenShake = 20;
